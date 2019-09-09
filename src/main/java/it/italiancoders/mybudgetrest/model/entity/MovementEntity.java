@@ -66,7 +66,6 @@ public class MovementEntity implements Serializable {
   private UserEntity user = null;
 
   @Column(name = "NOTE", length = 200)
-  @NotNull
   private String note;
 
 
