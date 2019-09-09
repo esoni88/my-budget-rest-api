@@ -36,6 +36,9 @@ public class Movement  implements Serializable {
   @JsonProperty("executedAt")
   private OffsetDateTime executedAt;
   
+  @JsonProperty("note")
+  private String note;
+  
   public Movement id(Long id) {
     this.id = id;
     return this;
@@ -110,6 +113,24 @@ public class Movement  implements Serializable {
     this.executedAt = executedAt;
   }
 
+  public Movement note(String note) {
+    this.note = note;
+    return this;
+  }
+
+  /**
+   * Get note
+   * @return note
+  */
+  @Size(max=200) 
+  public String getNote() {
+    return note;
+  }
+
+  public void setNote(String note) {
+    this.note = note;
+  }
+
 
   @Override
   public boolean equals(java.lang.Object o) {
@@ -123,12 +144,13 @@ public class Movement  implements Serializable {
     return Objects.equals(this.id, movement.id) &&
         Objects.equals(this.amount, movement.amount) &&
         Objects.equals(this.category, movement.category) &&
-        Objects.equals(this.executedAt, movement.executedAt);
+        Objects.equals(this.executedAt, movement.executedAt) &&
+        Objects.equals(this.note, movement.note);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, amount, category, executedAt);
+    return Objects.hash(id, amount, category, executedAt, note);
   }
 
   @Override
@@ -140,6 +162,7 @@ public class Movement  implements Serializable {
     sb.append("    amount: ").append(toIndentedString(amount)).append("\n");
     sb.append("    category: ").append(toIndentedString(category)).append("\n");
     sb.append("    executedAt: ").append(toIndentedString(executedAt)).append("\n");
+    sb.append("    note: ").append(toIndentedString(note)).append("\n");
     sb.append("}");
     return sb.toString();
   }

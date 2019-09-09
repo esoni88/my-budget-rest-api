@@ -65,6 +65,10 @@ public class MovementEntity implements Serializable {
   @JoinColumn(name = "USERNAME", referencedColumnName = "USERNAME")
   private UserEntity user = null;
 
+  @Column(name = "NOTE", length = 200)
+  @NotNull
+  private String note;
+
 
 }
 
