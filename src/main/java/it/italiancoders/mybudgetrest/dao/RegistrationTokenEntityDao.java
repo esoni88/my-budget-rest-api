@@ -7,7 +7,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
 
 public interface RegistrationTokenEntityDao extends JpaRepository<RegistrationTokenEntity, String> {
-    Optional<RegistrationTokenEntity> findOneByToken(String token);
+    Optional<RegistrationTokenEntity> findOneByTokenAndUsername(String token, String username);
     Optional<RegistrationTokenEntity> findOneByUsernameIgnoreCase(String token);
+
 
 }

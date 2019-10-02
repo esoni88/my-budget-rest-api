@@ -1,6 +1,7 @@
 package it.italiancoders.mybudgetrest.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import it.italiancoders.mybudgetrest.MybudgetRestApplication;
 import it.italiancoders.mybudgetrest.dao.UserDao;
 import it.italiancoders.mybudgetrest.exception.security.ExpiredTokenException;
 import it.italiancoders.mybudgetrest.exception.security.MailNotSentException;
@@ -14,6 +15,8 @@ import it.italiancoders.mybudgetrest.model.entity.UserEntity;
 import it.italiancoders.mybudgetrest.service.local.LocaleUtilsMessage;
 import it.italiancoders.mybudgetrest.service.security.JwtTokenManager;
 import it.italiancoders.mybudgetrest.service.user.UserManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.i18n.LocaleContextHolder;
@@ -99,11 +102,11 @@ public class SessionController {
                         .build());
 
     }
+    protected static final Logger logger = LoggerFactory.getLogger(MybudgetRestApplication.class);
 
     @RequestMapping(value = "public/v1/session", method  = RequestMethod.POST)
     public ResponseEntity<Session> createAuthenticationToken(@RequestBody LoginRequest authenticationRequest,
                                                              HttpServletResponse response) throws AuthenticationException, JsonProcessingException {
-
         final Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         authenticationRequest.getUsername(),
@@ -166,8 +169,9 @@ public class SessionController {
         return ResponseEntity.noContent().build();
     }
 
-    @RequestMapping(value = "public/v1/confirm-registration", method  = RequestMethod.GET)
-    public ResponseEntity<?> confirmRegistration(@RequestParam(value = "token", required = true) final String registrationToken) throws AuthenticationException, JsonProcessingException {
+    @RequestMapping(value = "public/v1/confirm-registration/{username}", method  = RequestMethod.POST)
+    public ResponseEntity<?> confirmRegistration(@PathVariable final String username,
+                                                 @RequestParam(value = "token", required = true) final String registrationToken) throws AuthenticationException, JsonProcessingException {
         if (StringUtils.isEmpty(registrationToken)) {
             RestException exception  = RestException.newBuilder()
                     .title("Conferma utente in errore")
@@ -178,11 +182,23 @@ public class SessionController {
         }
 
         try {
-            userManager.confirmRegistration(registrationToken);
+            userManager.confirmRegistration(username, registrationToken);
         } catch (ExpiredTokenException ex) {
-            return ResponseEntity.ok("Link di Attivazione Scaduto o Gia' Utilizzato: Richiedere un nuovo link di attivazione");
+
+            RestException exception  = RestException.newBuilder()
+                    .title("Conferma utente in errore")
+                    .detail("Link di Attivazione Scaduto o Gia' Utilizzato: Richiedere un nuovo link di attivazione")
+                    .status(HttpStatus.BAD_REQUEST)
+                    .build();
+            throw exception;
+
         } catch (NoSuchEntityException ex) {
-            return ResponseEntity.ok("Token di Attivazione Invalido");
+            RestException exception  = RestException.newBuilder()
+                    .title("Conferma utente in errore")
+                    .detail("Token di Attivazione Invalido")
+                    .status(HttpStatus.BAD_REQUEST)
+                    .build();
+            throw exception;
         }
 
         return ResponseEntity.ok("Utente Attivato, puoi iniziare ad utilizzare mybudget");
@@ -190,7 +206,7 @@ public class SessionController {
     }
 
     @RequestMapping(value = "public/v1/resend-confirm-registration-mail", method  = RequestMethod.POST)
-    public ResponseEntity<?> resendConfirmRegistrationMail(@RequestParam(value = "username", required = true) final String username) throws AuthenticationException, JsonProcessingException {
+    public ResponseEntity<?> resendConfirmRegistrationMail(@PathVariable final String username) throws AuthenticationException, JsonProcessingException {
         UserEntity user = userDao.findByUsernameIgnoreCase(username);
         if (user == null) {
             throw new NoSuchEntityException();

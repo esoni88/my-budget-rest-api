@@ -17,6 +17,7 @@ import java.util.List;
 @AllArgsConstructor
 @ToString
 @Builder(builderMethodName = "newBuilder")
+@IdClass(RegistrationTokenEntityId.class)
 public class RegistrationTokenEntity implements Serializable {
     private static final long serialVersionUID = 1L;
     @Id
@@ -26,6 +27,7 @@ public class RegistrationTokenEntity implements Serializable {
 
     @Column(name = "USERNAME", length = 50, unique = true)
     @NotNull
+    @Id
     private String username;
 
     @Column(name = "EXPIRED_AT", columnDefinition = "TIMESTAMP WITH TIME ZONE")

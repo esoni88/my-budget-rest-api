@@ -14,6 +14,7 @@ import it.italiancoders.mybudgetrest.model.entity.UserEntity;
 import it.italiancoders.mybudgetrest.model.entity.UserRoleEntity;
 import it.italiancoders.mybudgetrest.service.local.LocaleUtilsMessage;
 import it.italiancoders.mybudgetrest.service.user.UserManager;
+import it.italiancoders.mybudgetrest.utils.CommonUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -26,10 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.mail.internet.MimeMessage;
 import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -112,9 +110,9 @@ public class UserManagerImpl implements UserManager {
             String s = confirmUrl + registrationTokenEntity.getToken();
             helper.setText(registratioTemplate
                             .replace("@1", registrationTokenEntity.getUsername())
-                            .replace("@2", s)
+                            .replace("@2", registrationTokenEntity.getToken())
                     , true);
-            helper.setSubject("Confirm Registration My Budget App");
+            helper.setSubject("Attivazione Account My Budget App");
 
             sender.send(message);
         } catch (Exception exception) {
@@ -148,9 +146,8 @@ public class UserManagerImpl implements UserManager {
     }
 
     private RegistrationTokenEntity createRegistrationToken(String username) {
-        final String uuid = UUID.randomUUID().toString().replace("-", "");
         RegistrationTokenEntity registrationTokenEntity = RegistrationTokenEntity.newBuilder()
-                .token(uuid)
+                .token("" + CommonUtils.generateRandomDigits(5))
                 .expiredAt(OffsetDateTime.now().plus(registrationTokenExpiration, ChronoUnit.MINUTES))
                 .username(username)
                 .build();
@@ -169,10 +166,10 @@ public class UserManagerImpl implements UserManager {
 
     @Transactional
     @Override
-    public void confirmRegistration(String registrationToken) throws NoSuchEntityException, ExpiredTokenException {
+    public void confirmRegistration(String username, String registrationToken) throws NoSuchEntityException, ExpiredTokenException {
         OffsetDateTime now = OffsetDateTime.now();
         RegistrationTokenEntity registrationTokenEntity =
-                registrationTokenEntityDao.findOneByToken(registrationToken).orElseThrow(NoSuchEntityException::new);
+                registrationTokenEntityDao.findOneByTokenAndUsername(registrationToken, username).orElseThrow(NoSuchEntityException::new);
 
         if (now.isAfter(registrationTokenEntity.getExpiredAt())) {
             throw new ExpiredTokenException("Expired Token");
@@ -196,12 +193,8 @@ public class UserManagerImpl implements UserManager {
             registrationTokenEntityDao.delete(registrationTokenEntity);
         }
 
-        RegistrationTokenEntity registrationTokenEntity2 =
-                registrationTokenEntityDao.findOneByUsernameIgnoreCase(username).orElse(null);
-
         registrationTokenEntity = createRegistrationToken(username);
         sendRegistrationMail(registrationTokenEntity, email);
-
 
     }
 }

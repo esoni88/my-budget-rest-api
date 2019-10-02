@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>it.italiancoders</groupId>
 	<artifactId>mybudget-rest</artifactId>
-	<version>0.0.2-SNAPSHOT</version>
+	<version>0.0.3-SNAPSHOT</version>
 	<name>mybudget-rest</name>
 	<description>Demo project for Spring Boot</description>
 
@@ -40,7 +40,6 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-devtools</artifactId>
-			<scope>runtime</scope>
 			<optional>true</optional>
 		</dependency>
 		<dependency>
