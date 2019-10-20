@@ -21,11 +21,11 @@ import java.util.List;
 public class RegistrationTokenEntity implements Serializable {
     private static final long serialVersionUID = 1L;
     @Id
-    @Column(name = "TOKEN", unique = true)
+    @Column(name = "TOKEN")
     @NotNull
     private String token;
 
-    @Column(name = "USERNAME", length = 50, unique = true)
+    @Column(name = "USERNAME", length = 50)
     @NotNull
     @Id
     private String username;

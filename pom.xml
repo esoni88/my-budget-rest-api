@@ -114,6 +114,8 @@
 	</dependencies>
 
 	<build>
+		<finalName>mybudget-rest</finalName>
+
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>

@@ -9,6 +9,7 @@ import java.util.Optional;
 public interface RegistrationTokenEntityDao extends JpaRepository<RegistrationTokenEntity, String> {
     Optional<RegistrationTokenEntity> findOneByTokenAndUsername(String token, String username);
     Optional<RegistrationTokenEntity> findOneByUsernameIgnoreCase(String token);
+    long deleteAllByUsernameIgnoreCase(String username);
 
 
 }

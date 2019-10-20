@@ -206,7 +206,7 @@ public class SessionController {
     }
 
     @RequestMapping(value = "public/v1/resend-confirm-registration-mail", method  = RequestMethod.POST)
-    public ResponseEntity<?> resendConfirmRegistrationMail(@PathVariable final String username) throws AuthenticationException, JsonProcessingException {
+    public ResponseEntity<?> resendConfirmRegistrationMail(@RequestParam final String username) throws AuthenticationException, JsonProcessingException {
         UserEntity user = userDao.findByUsernameIgnoreCase(username);
         if (user == null) {
             throw new NoSuchEntityException();

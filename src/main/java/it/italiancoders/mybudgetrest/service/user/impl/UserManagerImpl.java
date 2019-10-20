@@ -1,5 +1,6 @@
 package it.italiancoders.mybudgetrest.service.user.impl;
 
+import it.italiancoders.mybudgetrest.MybudgetRestApplication;
 import it.italiancoders.mybudgetrest.dao.RegistrationTokenEntityDao;
 import it.italiancoders.mybudgetrest.dao.UserDao;
 import it.italiancoders.mybudgetrest.exception.security.ExpiredTokenException;
@@ -16,6 +17,8 @@ import it.italiancoders.mybudgetrest.service.local.LocaleUtilsMessage;
 import it.italiancoders.mybudgetrest.service.user.UserManager;
 import it.italiancoders.mybudgetrest.utils.CommonUtils;
 import org.modelmapper.ModelMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -32,6 +35,7 @@ import java.util.stream.Collectors;
 
 @Service
 public class UserManagerImpl implements UserManager {
+    protected static final Logger logger = LoggerFactory.getLogger(UserManagerImpl.class);
 
     @Autowired
     private UserDao userDao;
@@ -189,9 +193,12 @@ public class UserManagerImpl implements UserManager {
         RegistrationTokenEntity registrationTokenEntity =
                 registrationTokenEntityDao.findOneByUsernameIgnoreCase(username).orElse(null);
 
+        long l = -1;
         if (registrationTokenEntity != null) {
-            registrationTokenEntityDao.delete(registrationTokenEntity);
+            l = registrationTokenEntityDao.deleteAllByUsernameIgnoreCase(registrationTokenEntity.getUsername());
         }
+        logger.info("debug l [{}] " , l);
+
 
         registrationTokenEntity = createRegistrationToken(username);
         sendRegistrationMail(registrationTokenEntity, email);
